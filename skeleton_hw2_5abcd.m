@@ -1,8 +1,8 @@
 % EC 414 Introduction to Machine Learning
 % Spring 2022
 % Homework 2
-% by (fill in name)
-%
+% by Stefan Lütschg
+% U27846111
 % Nearest Neighbor Classifier
 %
 % Problem 2.5 a, b, c, d
@@ -18,11 +18,14 @@ Ntrain = size(Xtrain,1);
 %% a) Plotting
 % include a scatter plot
 % MATLAB function: gscatter()
-
+gscatter(Xtrain(:,1),Xtrain(:,2),ytrain);
+ax = gca;
+ax.FontSize = 14;
+grid on;
 % label axis and include title
-% xlabel('')
-% ylabel('')
-% title('')
+xlabel('X_1','FontSize',14,'FontWeight','bold')
+ylabel('X_2','FontSize',14,'FontWeight','bold')
+title('Training Data','FontSize',14)
 
 
 %% b)Plotting Probabilities on a 2D map
@@ -33,7 +36,16 @@ Xtest = [Xgrid(:),Ygrid(:)];
 [Ntest,dim]=size(Xtest);
 
 % compute probabilities of being in class 2 for each point on grid
-probabilities = 
+%probabilities = 
+distances = zeros(Ntest,Ntrain);
+for i = 1:Ntest
+
+    for j = 1:Ntrain
+        distances(i,j) = sqrt((Xtrain(j,1) - Xtest(i,1))^2 + (Xtrain(j,2) - Xtest(i,2))^2);
+    end
+    
+end
+
 
 % Figure for class 2
 figure
@@ -53,7 +65,7 @@ colorbar;
 K = 1 ; % K = 1 case
 
 % compute predictions 
-ypred = 
+%ypred = 
 figure
 gscatter(Xgrid(:),Ygrid(:),ypred,'rgb')
 xlim([-3.5,6]);
@@ -69,13 +81,13 @@ ylim([-3,6.5]);
 
 for k = 1:2:11
     % determine leave-one-out predictions for k
-    ypred = 
+    %ypred = 
 
 
     % compute confusion matrix
     conf_mat = confusionmat(Ygrid(:), ypred);
     % from confusion matrix, compute CCR
-    CCR = 
+    %CCR = 
     
     % below is logic for collecting CCRs into one vector
     if k == 1
