@@ -44,7 +44,7 @@ for i = 1:Ntest
     
 end
 dist_sorted = sort(distances10,2,'ascend');
-closest_10 = dist_sorted(:,1:10); % Smallest 10 distances
+closest_10 = dist_sorted(:,1:K); % Smallest 10 distances
 count_of_twos = zeros(Ntest,1);
 for i = 1:Ntest
     for j = 1:Ntrain
@@ -94,19 +94,52 @@ ax.FontSize = 20;
 K = 1 ; % K = 1 case
 
 % compute predictions 
-min_distances = min(distances10);
-%ypred = 
+min_distances = zeros(Ntest,K);
+idx = zeros(Ntest,1);
+ypred = zeros(Ntest,1);
+for i = 1:Ntest
+    [min_distancesI, idxI] = min(distances10(i,:));
+    min_distances(i) = min_distancesI;
+    idx(i) = idxI;
+    ypred(i) = ytrain(idx(i));
+end
+
+
 figure
 gscatter(Xgrid(:),Ygrid(:),ypred,'rgb')
 xlim([-3.5,6]);
 ylim([-3,6.5]);
 % remember to include title and labels!
-% xlabel('')
-% ylabel('')
-% title('')
+xlabel('X_1','FontSize',20,'FontWeight','bold')
+ylabel('X_2','FontSize',20,'FontWeight','bold')
+title('$h_{1NN}(\textbf{x})$','FontSize',20,'interpreter','latex')
+ax = gca;
+ax.FontSize = 20;
 
 % repeat steps above for the K=5 case. Include code for this below.
-
+K = 5;
+min_distances_5 = dist_sorted(:,1:K);
+ypred_5 = zeros(Ntest,K);
+for i = 1:Ntest
+    for j = 1:Ntrain
+        for k = 1 : K
+            if distances10(i,j) == min_distances_5(i,k) 
+                ypred_5(i,k) = ytrain(j);
+            end
+        end
+    end
+end
+ypred = mode(ypred_5,2);
+figure
+gscatter(Xgrid(:),Ygrid(:),ypred,'rgb')
+xlim([-3.5,6]);
+ylim([-3,6.5]);
+% remember to include title and labels!
+xlabel('X_1','FontSize',20,'FontWeight','bold')
+ylabel('X_2','FontSize',20,'FontWeight','bold')
+title('$h_{5NN}(\textbf{x})$','FontSize',20,'interpreter','latex')
+ax = gca;
+ax.FontSize = 20;
 %% d) LOOCV CCR computations
 
 for k = 1:2:11
