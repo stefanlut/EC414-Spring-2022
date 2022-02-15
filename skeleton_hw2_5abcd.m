@@ -8,7 +8,7 @@
 % Problem 2.5 a, b, c, d
 
 
-clc, clear
+clc, clear, close all
 
 fprintf("==== Loading data_knnSimulation.mat\n");
 load("data_knnSimulation.mat")
@@ -20,7 +20,7 @@ Ntrain = size(Xtrain,1);
 % MATLAB function: gscatter()
 gscatter(Xtrain(:,1),Xtrain(:,2),ytrain);
 ax = gca;
-ax.FontSize = 14;
+ax.FontSize = 20;
 grid on;
 % label axis and include title
 xlabel('X_1','FontSize',14,'FontWeight','bold')
@@ -34,37 +34,67 @@ K = 10;
 [Xgrid, Ygrid]=meshgrid([-3.5:0.1:6],[-3:0.1:6.5]);
 Xtest = [Xgrid(:),Ygrid(:)];
 [Ntest,dim]=size(Xtest);
-
 % compute probabilities of being in class 2 for each point on grid
-%probabilities = 
-distances = zeros(Ntest,Ntrain);
+distances10 = zeros(Ntest,Ntrain);
 for i = 1:Ntest
-
     for j = 1:Ntrain
-        distances(i,j) = sqrt((Xtrain(j,1) - Xtest(i,1))^2 + (Xtrain(j,2) - Xtest(i,2))^2);
+        distances10(i,j) = sqrt((Xtrain(j,1) - Xtest(i,1))^2 + (Xtrain(j,2) - Xtest(i,2))^2);
+     
     end
     
 end
-
-
+dist_sorted = sort(distances10,2,'ascend');
+closest_10 = dist_sorted(:,1:10); % Smallest 10 distances
+count_of_twos = zeros(Ntest,1);
+for i = 1:Ntest
+    for j = 1:Ntrain
+        for k = 1 : K
+            if distances10(i,j) == closest_10(i,k) && ytrain(j) == 2
+                count_of_twos(i) = count_of_twos(i) + 1;
+            end
+        end
+    end
+end
+probabilities_2 = count_of_twos / K;
 % Figure for class 2
 figure
-class2ProbonGrid = reshape(probabilities,size(Xgrid));
+class2ProbonGrid = reshape(probabilities_2,size(Xgrid));
 contourf(Xgrid,Ygrid,class2ProbonGrid);
 colorbar;
 % remember to include title and labels!
-% xlabel('')
-% ylabel('')
-% title('')
+xlabel('X_1','FontSize',20,'FontWeight','bold')
+ylabel('X_2','FontSize',20,'FontWeight','bold')
+title('$\hat{p}(y = 2 | \textbf{x})$','FontSize',20,'interpreter','latex')
+ax = gca;
+ax.FontSize = 20;
 
 
 % repeat steps above for class 3 below
-
-
+count_of_threes = zeros(Ntest,1);
+for i = 1:Ntest
+    for j = 1:Ntrain
+        for k = 1 : K
+            if distances10(i,j) == closest_10(i,k) && ytrain(j) == 3
+                count_of_threes(i) = count_of_threes(i) + 1;
+            end
+        end
+    end
+end
+probabilities3 = count_of_threes / K;
+figure;
+class3ProbonGrid = reshape(probabilities3,size(Xgrid));
+contourf(Xgrid,Ygrid,class3ProbonGrid);
+colorbar;
+xlabel('X_1','FontSize',20,'FontWeight','bold')
+ylabel('X_2','FontSize',20,'FontWeight','bold')
+title('$\hat{p}(y = 3 | \textbf{x})$','FontSize',20,'interpreter','latex')
+ax = gca;
+ax.FontSize = 20;
 %% c) Class label predictions
 K = 1 ; % K = 1 case
 
 % compute predictions 
+min_distances = min(distances10);
 %ypred = 
 figure
 gscatter(Xgrid(:),Ygrid(:),ypred,'rgb')
