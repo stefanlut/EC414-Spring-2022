@@ -141,17 +141,33 @@ title('$h_{5NN}(\textbf{x})$','FontSize',20,'interpreter','latex')
 ax = gca;
 ax.FontSize = 20;
 %% d) LOOCV CCR computations
+min_distances_k = zeros(Ntest,1);
 
 for k = 1:2:11
     % determine leave-one-out predictions for k
-    %ypred = 
-
+    clear min_distances_k ypred;
+    min_distances_k = zeros(Ntest,k);
+    min_distances_k = dist_sorted(:,1:k);
+    ypred = zeros(Ntest,k);
+    for i = 1:Ntest
+        for j = 1:Ntrain
+            for z = 1 : k
+                if distances10(i,j) == min_distances_k(i,z) 
+                   ypred(i,z) = ytrain(j);
+                end
+            end
+        end
+    end 
+    ypred = mode(ypred,2);
 
     % compute confusion matrix
     conf_mat = confusionmat(Ygrid(:), ypred);
     % from confusion matrix, compute CCR
-    %CCR = 
-    
+    CCR = 0;
+    for j = 1:length(conf_mat)
+        CCR = CCR + conf_mat(j,j);
+    end
+    CCR = CCR /Ntest;
     % below is logic for collecting CCRs into one vector
     if k == 1
         CCR_values = CCR;
@@ -162,3 +178,10 @@ end
 
 % plot CCR values for k = 1,3,5,7,9,11
 % label x/y axes and include title
+k = [1 3 5 7 9 11];
+scatter(k,CCR_values,'*r');
+grid on;
+ax = gca;
+ax.FontSize = 20;
+xlabel('K','FontSize',20);
+ylabel('CCR Values','FontSize',20);
