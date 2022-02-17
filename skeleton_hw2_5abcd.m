@@ -39,7 +39,6 @@ distances10 = zeros(Ntest,Ntrain);
 for i = 1:Ntest
     for j = 1:Ntrain
         distances10(i,j) = sqrt((Xtrain(j,1) - Xtest(i,1))^2 + (Xtrain(j,2) - Xtest(i,2))^2);
-     
     end
     
 end
@@ -167,7 +166,7 @@ for k = 1:2:11
     for j = 1:length(conf_mat)
         CCR = CCR + conf_mat(j,j);
     end
-    CCR = CCR /Ntest;
+    CCR = CCR /Ntrain;
     % below is logic for collecting CCRs into one vector
     if k == 1
         CCR_values = CCR;
@@ -185,3 +184,4 @@ ax = gca;
 ax.FontSize = 20;
 xlabel('K','FontSize',20);
 ylabel('CCR Values','FontSize',20);
+title('CCR Values per K','FontSize',20);
