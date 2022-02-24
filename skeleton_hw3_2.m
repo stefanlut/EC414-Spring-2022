@@ -6,21 +6,26 @@ clear, clc, close all;
 %% Generate Gaussian data:
 % Add code below:
 n = 50;
+Xtrain = zeros(n*3,2);
+Ytrain = zeros(n*3,1);
+Ytrain(1:n) = 1;
+Ytrain(n+1:2*n) = 2;
+Ytrain(2*n+1:3*n) = 3;
+I2 = [1 0;0 1];
 mu1 = [2,2];
-sig1 = 0.02*ones(2);
+sig1 = 0.02*I2;
 mu2 = [-2,2];
-sig2 = 0.05*ones(2);
+sig2 = 0.05*I2;
 mu3 = [0,-3.25];
-sig3 = 0.07*ones(2);
-X1 = mvnrnd(mu1,sig1,n);
-X2 = mvnrnd(mu2,sig2,n);
-X3 = mvnrnd(mu3,sig3,n);
-Y1 = ones(n,1);
-Y2 = 2 * ones(n,1);
-Y3 = 3 * ones(n,1);
+sig3 = 0.07*I2;
+
+Xtrain(1:n,:) = mvnrnd(mu1,sig1,n);
+Xtrain(n+1:2*n,:) = mvnrnd(mu2,sig2,n);
+Xtrain(2*n+1:3*n,:) = mvnrnd(mu3,sig3,n);
 figure;
-gscatter([X1(:,1);X2(:,1);X3(:,1)],[X1(:,2);X2(:,2);X3(:,2)],[Y1;Y2;Y3]);
+gscatter(Xtrain(:,1),Xtrain(:,2),Ytrain);
 grid on;
+hold on;
 
 %% Generate NBA data:
 % Add code below:
@@ -41,14 +46,15 @@ MU_init = [mu1_init mu2_init mu3_init];
 
 MU_previous = MU_init;
 MU_current = MU_init;
-BigX = [X1;X2;X3];
+
 % initializations
-labels = ones(length([X1(:,1);X2(:,1);X3(:,1)]),1);
+labels = ones(length(Xtrain),1);
 converged = 0;
 iteration = 0;
 convergence_threshold = 0.025;
 min_distances = zeros(3,1);
-
+scatter(MU_current(1,:),MU_current(2,:),50,'oK','filled');
+legend('1','2','3','Centroid','FontSize',14);
 while (converged==0)
     iteration = iteration + 1;
     fprintf('Iteration: %d\n',iteration)
@@ -61,10 +67,10 @@ while (converged==0)
     %% CODE - Assignment Step - Assign each data observation to the cluster with the nearest mean:
     % Write code below here:
     for i = 1:length(labels)
-       min_distances(1) = sqrt((BigX(i,1) - MU_current(1,1))^2 + (BigX(i,2) - MU_current(2,1))^2);
-       min_distances(2) = sqrt((BigX(i,1) - MU_current(1,2))^2 + (BigX(i,2) - MU_current(2,2))^2);
-       min_distances(3) = sqrt((BigX(i,1) - MU_current(1,3))^2 + (BigX(i,2) - MU_current(2,3))^2);
-       [mind, idx] = min(min_distances);
+       min_distances(1) = sqrt((Xtrain(i,1) - MU_current(1,1))^2 + (Xtrain(i,2) - MU_current(2,1))^2);
+       min_distances(2) = sqrt((Xtrain(i,1) - MU_current(1,2))^2 + (Xtrain(i,2) - MU_current(2,2))^2);
+       min_distances(3) = sqrt((Xtrain(i,1) - MU_current(1,3))^2 + (Xtrain(i,2) - MU_current(2,3))^2);
+       [~, idx] = min(min_distances);
        if idx == 1
            labels(i) = 1;
        elseif idx == 2
@@ -79,18 +85,18 @@ while (converged==0)
     id2 = find(labels == 2);
     id3 = find(labels == 3);
     for i = 1:length(id1)
-        x11 = x11 + BigX(id1(i),1);
-        x12 = x12 + BigX(id1(i),2);
+        x11 = x11 + Xtrain(id1(i),1);
+        x12 = x12 + Xtrain(id1(i),2);
     end
     MU1current = [x11/length(id1) x12/length(id1)]';
     for i = 1:length(id2)
-        x21 = x21 + BigX(id2(i),1);
-        x22 = x22 + BigX(id2(i),2);
+        x21 = x21 + Xtrain(id2(i),1);
+        x22 = x22 + Xtrain(id2(i),2);
     end
     MU2current = [x21/length(id2) x22/length(id2)]';
     for i = 1:length(id3)
-        x31 = x31 + BigX(id3(i),1);
-        x32 = x32 + BigX(id3(i),2);
+        x31 = x31 + Xtrain(id3(i),1);
+        x32 = x32 + Xtrain(id3(i),2);
     end
     MU3current = [x31/length(id3) x32/length(id3)]';
     MU_previous = MU_current;
@@ -107,9 +113,11 @@ while (converged==0)
     if (converged == 1)
         fprintf('\nConverged.\n')
         figure;
-        gscatter(BigX(:,1),BigX(:,2),labels);
-        
-       
+        gscatter(Xtrain(:,1),Xtrain(:,2),labels);
+        hold on;
+        scatter(MU_current(1,:),MU_current(2,:),50,'oK','filled');
+        grid on;
+        legend('1','2','3','Centroid','FontSize',14);
         
         %% If converged, get WCSS metric
         % Add code below
