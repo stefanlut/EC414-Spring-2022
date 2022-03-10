@@ -24,6 +24,8 @@ Xtrain(n+1:2*n,:) = mvnrnd(mu2,sig2,n);
 Xtrain(2*n+1:3*n,:) = mvnrnd(mu3,sig3,n);
 figure;
 gscatter(Xtrain(:,1),Xtrain(:,2),Ytrain);
+xlabel('X1','FontSize',14);
+ylabel('X2','FontSize',14);
 grid on;
 hold on;
 
@@ -39,11 +41,11 @@ A = readmatrix('NBA_stats_2018_2019.xlsx');
 % Add code below
 
 K = 3;
-mu1_init = [3 3]';
-mu2_init = [-4 -1]';
-mu3_init = [2 -4]';
-MU_init = [mu1_init mu2_init mu3_init]; 
-
+%mu1_init = [-0.14 2.61]';
+%mu2_init = [3.15 -0.84]';
+%mu3_init = [-3.28 -1.58]';
+%MU_init = [mu1_init mu2_init mu3_init]; 
+MU_init = [5 -3 3; 0 3 -5];
 MU_previous = MU_init;
 MU_current = MU_init;
 
@@ -52,12 +54,13 @@ labels = ones(length(Xtrain),1);
 converged = 0;
 iteration = 0;
 convergence_threshold = 0.025;
-min_distances = zeros(3,1);
+min_distances = zeros(K,1);
 scatter(MU_current(1,:),MU_current(2,:),50,'oK','filled');
 legend('1','2','3','Centroid','FontSize',14);
 while (converged==0)
     iteration = iteration + 1;
     fprintf('Iteration: %d\n',iteration)
+    X_sums = zeros(K,2);
     x11 = 0;
     x12 = 0;
     x21 = 0;
@@ -67,20 +70,26 @@ while (converged==0)
     %% CODE - Assignment Step - Assign each data observation to the cluster with the nearest mean:
     % Write code below here:
     for i = 1:length(labels)
-       min_distances(1) = sqrt((Xtrain(i,1) - MU_current(1,1))^2 + (Xtrain(i,2) - MU_current(2,1))^2);
-       min_distances(2) = sqrt((Xtrain(i,1) - MU_current(1,2))^2 + (Xtrain(i,2) - MU_current(2,2))^2);
-       min_distances(3) = sqrt((Xtrain(i,1) - MU_current(1,3))^2 + (Xtrain(i,2) - MU_current(2,3))^2);
+        for k = 1: K
+            min_distances(k) = sqrt((Xtrain(i,1) - MU_current(k,1))^2 + (Xtrain(i,2) - MU_current(k,1))^2);
+        end
+%        min_distances(1) = sqrt((Xtrain(i,1) - MU_current(1,1))^2 + (Xtrain(i,2) - MU_current(2,1))^2);
+%        min_distances(2) = sqrt((Xtrain(i,1) - MU_current(1,2))^2 + (Xtrain(i,2) - MU_current(2,2))^2);
+%        min_distances(3) = sqrt((Xtrain(i,1) - MU_current(1,3))^2 + (Xtrain(i,2) - MU_current(2,3))^2);
        [~, idx] = min(min_distances);
-       if idx == 1
-           labels(i) = 1;
-       elseif idx == 2
-           labels(i) = 2;
-       elseif idx == 3
-           labels(i) = 3;
+       for k = 1:K
+           if idx == k
+               labels(i) = k;
+           end
        end
     end
     %% CODE - Mean Updating - Update the cluster means
     % Write code below here:
+    XY = [Xtrain labels];
+    XY = sortrows(XY,3);
+    for i = 1:length(Xtrain)
+        
+    end
     id1 = find(labels == 1);
     id2 = find(labels == 2);
     id3 = find(labels == 3);
@@ -114,6 +123,9 @@ while (converged==0)
         fprintf('\nConverged.\n')
         figure;
         gscatter(Xtrain(:,1),Xtrain(:,2),labels);
+        xlabel('X1','FontSize',14);
+        ylabel('X2','FontSize',14);
+        title('$h_{2}(\textbf{x})$','FontSize',14,'interpreter','latex');
         hold on;
         scatter(MU_current(1,:),MU_current(2,:),50,'oK','filled');
         grid on;
@@ -121,7 +133,17 @@ while (converged==0)
         
         %% If converged, get WCSS metric
         % Add code below
-        
+        WCSS = 0;
+        for i = 1:length(id1)
+            WCSS = WCSS + (MU_current(1,1) - Xtrain(i,1))^2 + (MU_current(2,1) - Xtrain(i,2))^2;
+        end
+        for i = length(id1)+1:2*length(id2)
+            WCSS = WCSS + (MU_current(1,2) - Xtrain(i,1))^2 + (MU_current(2,2) - Xtrain(i,2))^2;
+        end
+        for i = 2*length(id2)+1:3*length(id3)
+           WCSS =  WCSS + (MU_current(1,3) - Xtrain(i,1))^2 + (MU_current(2,3) - Xtrain(i,2))^2;
+        end
+        fprintf('WCSS: %f\n',WCSS)
     end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
