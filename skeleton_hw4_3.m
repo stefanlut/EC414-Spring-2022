@@ -87,7 +87,14 @@ axis equal;
 
 % For each phi = 0 to pi in steps of pi/48 compute the signal power, noise 
 % power, and snr along direction phi and plot them against phi 
-
+n1 = 50;
+n2 = 100;
+mu1 = [1; 2];
+mu2 = [3; 2];
+theta = 1 * pi/6;
+lambda1 = 1;
+lambda2 = 0.25;
+[X, Y] = two_2D_Gaussians(n1, n2, mu1, mu2, lambda1, lambda2, theta);
 phi_array = 0:pi/48:pi;
 signal_power_array = zeros(1,length(phi_array));
 noise_power_array = zeros(1,length(phi_array));
@@ -110,7 +117,8 @@ end
 figure;subplot(131)
 scatter(phi_array,signal_power_array,'o','fill');
 grid;axis equal; hold on;
-xlabel('\phi (radians)','FontSize',14);ylabel('signal power','FontSize',14);
+xlabel('\phi (radians)','FontSize',14);ylabel('Signal Power','FontSize',14);
+title('Signal Power vs \phi','FontSize',14);
 findpeaks(signal_power_array,phi_array);
 [~,LOCS] = findpeaks(signal_power_array,phi_array);
 maxPhi1 = LOCS;
@@ -119,7 +127,8 @@ legend('Signal Power','Line','Maximum Signal Power','FontSize',14);
 subplot(132)
 scatter(phi_array,noise_power_array,'o','fill');
 grid on; axis equal;hold on;
-xlabel('\phi (radians)','FontSize',14);ylabel('noise power','FontSize',14);
+xlabel('\phi (radians)','FontSize',14);ylabel('Noise Power','FontSize',14);
+title('Noise Power vs \phi','FontSize',14);
 findpeaks(noise_power_array,phi_array);
 [~,LOCS] = findpeaks(noise_power_array,phi_array);
 maxPhi2 = LOCS;
@@ -129,6 +138,7 @@ subplot(133)
 scatter(phi_array,snr_array,'o','fill');
 grid on; axis equal;hold on;
 xlabel('\phi (radians)','FontSize',14);ylabel('SNR','FontSize',14);
+title('Signal to Noise Ratio vs \phi','FontSize',14);
 findpeaks(snr_array,phi_array);
 [~,LOCS] = findpeaks(snr_array,phi_array);
 maxPhi3 = LOCS;
