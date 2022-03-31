@@ -14,6 +14,14 @@ histogram(Y);
 xticks(cell2mat(Label_legend(:,1)));
 xticklabels(Label_legend(:,2));
 X = [X_data_train; X_data_test];
+correlation_coefficients = zeros(4);
+for i = 1:4
+   for j = 1:4
+       temp = corrcoef(X(:,i),X(:,j));
+       %same as temp = cov(X(:,i),X(:,j))/sqrt(var(X(:,i))*var(X(:,j)));
+      correlation_coefficients(i,j) = temp(2,1); 
+   end
+end
 
 %% 6.3b) through 6.3e)
 x_ext_train = [X_data_train ones(105,1)]';
@@ -24,9 +32,11 @@ y_predtest = zeros(45,1);
 probabilities = zeros(3,1);
 t_prime = 1:1:300;
 plot_g_theta = zeros(1,300);
+plot_ccr_train = plot_g_theta;
+plot_ccr_test = plot_g_theta;
 g_theta_new_plot = zeros(t_max,1);
 fj = zeros(45,1);
-y_pred = zeros(105,1);
+y_pred_train = zeros(105,1);
 CCR_train = zeros(t_max,1);
 CCR_test = CCR_train;
 for i = t
@@ -51,15 +61,15 @@ for i = t
     
     for g = 1:105
         [~,yhat] = max([Theta(:,1)'*x_ext_train(:,g), Theta(:,2)'*x_ext_train(:,g), Theta(:,3)'*x_ext_train(:,g)]);
-        ypred_train(g) = yhat;
+        y_pred_train(g) = yhat;
     end
     for x = 1:45
         [~,yhat] = max([Theta(:,1)'*x_ext_test(:,x), Theta(:,2)'*x_ext_test(:,x), Theta(:,3)'*x_ext_test(:,x)]);
-        ypred_test(x) = yhat;
+        y_predtest(x) = yhat;
     end
-    confusionmatrix_train = confusionmat(Y_label_train,ypred_train);
+    confusionmatrix_train = confusionmat(Y_label_train,y_pred_train);
     CCR_train(i) = trace(confusionmatrix_train)/105;
-    confusionmatrix_test = confusionmat(Y_label_test,ypred_test);
+    confusionmatrix_test = confusionmat(Y_label_test,y_predtest);
     CCR_test(i) = trace(confusionmatrix_test)/45;
     if(mod(i,20) == 0 )
         plot_g_theta(i/20) = g_theta / 105;
@@ -70,15 +80,15 @@ end
 %% GRAPHS
 figure;
 plot(t_prime,plot_g_theta,'LineWidth',2);
-xlabel('t''','FontSize',14);
+xlabel('t'' = 20t','FontSize',14);
 ylabel('$$ \frac{1}{n}g(\Theta) $$','FontSize',20,'Interpreter','latex');
 figure;
 plot(t_prime,plot_ccr_train,'LineWidth',2);
 ylabel('CCR','FontSize',14);
-xlabel('t''','FontSize',14);
+xlabel('t'' = 20t','FontSize',14);
 title('CCR of Training Set','FontSize',14);
 figure;
 plot(t_prime,plot_ccr_test,'LineWidth',2);
 ylabel('CCR','FontSize',14);
-xlabel('t''','FontSize',14);
+xlabel('t'' = 20t','FontSize',14);
 title('CCR of Test Set','FontSize',14);
