@@ -61,8 +61,8 @@ n_train = length(Xtrain);
 MSE_test_array = zeros(length(lambda),1);
 n_test = length(Xtest);
 for i = 1:length(lambda)
-    MSE_train_array(i) = 1/n_train * norm(w_ridge_array(i,:)) + sum((ytrain_norm - w_ridge_array(i,:)*Xtrain_norm' - b_ridge_array(i)).^2);
-    MSE_test_array(i) = 1/n_test * norm(w_ridge_array(i,:)) + sum((ytest_norm - w_ridge_array(i,:)*Xtest_norm' - b_ridge_array(i)).^2);
+    MSE_train_array(i) = 1/n_train *sum((ytrain_norm - w_ridge_array(i,:)*Xtrain_norm' - b_ridge_array(i)).^2);
+    MSE_test_array(i) = 1/n_test *sum((ytest_norm - w_ridge_array(i,:)*Xtest_norm' - b_ridge_array(i)).^2);
 end
 figure;
 plot(ln_array,MSE_train_array,'LineWidth',2); hold on;
