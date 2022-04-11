@@ -1,6 +1,7 @@
 %% Homework 6
 % Stefan Lutschg
 % U27846111
+tic;
 clear,clc,close all
 
 load('iris.mat');
@@ -13,6 +14,9 @@ Y = [Y_label_train;Y_label_test];
 histogram(Y);
 xticks(cell2mat(Label_legend(:,1)));
 xticklabels(Label_legend(:,2));
+title('Histogram of Class Labels','FontSize',14);
+ax = gca;
+ax.FontSize = 14;
 X = [X_data_train; X_data_test];
 correlation_coefficients = zeros(4);
 for i = 1:4
@@ -22,7 +26,16 @@ for i = 1:4
       correlation_coefficients(i,j) = temp(2,1); 
    end
 end
-
+figure(2);
+scatter(X(:,1),X(:,2)); hold on;
+scatter(X(:,1),X(:,3));
+scatter(X(:,1),X(:,4));
+scatter(X(:,2),X(:,3));
+scatter(X(:,2),X(:,4));
+scatter(X(:,3),X(:,4));
+legend('Feature 1 & 2','Feature 1 & 3','Feature 1 & 4','Feature 2 & 3','Feature 2 & 4','Feature 3 & 4');
+title('Scatterplot of distinct feature pairs','FontSize',14);
+grid on;
 %% 6.3b) through 6.3e)
 x_ext_train = [X_data_train ones(105,1)]';
 x_ext_test = [X_data_test ones(45,1)]';
@@ -39,6 +52,8 @@ fj = zeros(45,1);
 y_pred_train = zeros(105,1);
 CCR_train = zeros(t_max,1);
 CCR_test = CCR_train;
+log_loss = CCR_train;
+plot_log_loss = plot_g_theta;
 for i = t
     f_0 = lambda * sum(vecnorm(Theta,2));
     gradient_0 = 2 * lambda * Theta;
@@ -71,24 +86,46 @@ for i = t
     CCR_train(i) = trace(confusionmatrix_train)/105;
     confusionmatrix_test = confusionmat(Y_label_test,y_predtest);
     CCR_test(i) = trace(confusionmatrix_test)/45;
+    logl = 0;
+    for x = 1:45
+        logl = logl + log(sum([exp(Theta(:,1)'*x_ext_test(:,x)), exp(Theta(:,2)'*x_ext_test(:,x)), exp(Theta(:,3)'*x_ext_test(:,x))])) - sum([(1 == Y_label_test(x))*Theta(:,1)'*x_ext_test(:,x) (2 == Y_label_test(x))*Theta(:,2)'*x_ext_test(:,x) (3 == Y_label_test(x))*Theta(:,3)'*x_ext_test(:,x)]);
+    end
+    log_loss(i) = logl/45;
     if(mod(i,20) == 0 )
         plot_g_theta(i/20) = g_theta / 105;
         plot_ccr_train(i/20) = CCR_train(i);
         plot_ccr_test(i/20) = CCR_test(i);
+        plot_log_loss(i/20) = log_loss(i);
     end
 end
 %% GRAPHS
 figure;
 plot(t_prime,plot_g_theta,'LineWidth',2);
-xlabel('t'' = 20t','FontSize',14);
+xlabel('$$t'' = \frac{t}{20}$$','Interpreter','latex','FontSize',20);
 ylabel('$$ \frac{1}{n}g(\Theta) $$','FontSize',20,'Interpreter','latex');
 figure;
 plot(t_prime,plot_ccr_train,'LineWidth',2);
 ylabel('CCR','FontSize',14);
-xlabel('t'' = 20t','FontSize',14);
+xlabel('$$t'' = \frac{t}{20}$$','Interpreter','latex','FontSize',20);
 title('CCR of Training Set','FontSize',14);
 figure;
 plot(t_prime,plot_ccr_test,'LineWidth',2);
 ylabel('CCR','FontSize',14);
-xlabel('t'' = 20t','FontSize',14);
+xlabel('$$t'' = \frac{t}{20}$$','Interpreter','latex','FontSize',20);
 title('CCR of Test Set','FontSize',14);
+figure;
+plot(t_prime,plot_log_loss,'LineWidth',2);
+ylabel('$$logloss(\Theta)$$','Interpreter','latex','FontSize',20);
+xlabel('$$t'' = \frac{t}{20}$$','Interpreter','latex','FontSize',20);
+%% Reporting Final Values
+disp("Theta = ");
+disp(Theta);
+disp("Final Training CCR = ");
+disp(CCR_train(end));
+disp("Final Test CCR = ");
+disp(CCR_test(end));
+disp("Training Confusion Matrix = ");
+disp(confusionmatrix_train);
+disp("Test Confusion Matrix = ");
+disp(confusionmatrix_test);
+toc;

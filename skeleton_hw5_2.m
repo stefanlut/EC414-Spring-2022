@@ -1,6 +1,7 @@
 function [lambda_top5, k_] = skeleton_hw5_2()
 %% Q5.2
 %% Load AT&T Face dataset
+    clear,clc;
     img_size = [112,92];   % image size (rows,columns)
     % Load the AT&T Face data set using load_faces()
     %%%%% TODO
@@ -13,7 +14,7 @@ function [lambda_top5, k_] = skeleton_hw5_2()
     X_tilde = faces-mean_face.*ones(400,112*92);
     % Compute covariance matrix using X_tilde
     %%%%% TODO
-    Sx = 1/(112 * 92) *( X_tilde'*X_tilde);
+    Sx = cov(X_tilde);
     %% Compute the eigenvalue decomposition of the covariance matrix
     %%%%% TODO
     [U,Lambda] = eig(Sx,'vector');
@@ -24,8 +25,9 @@ function [lambda_top5, k_] = skeleton_hw5_2()
     U = U(:,idx);
     %% Compute the principal components: Y
     %%%%% TODO
-    W_pca = U(:,1:400);
-    Y = W_pca' * (X_tilde');
+    W_pca = U(:,1:rank(faces));
+    
+%     Y = W_pca' * (X_tilde');
 %% Q5.2 a) Visualize the loaded images and the mean face image
     figure(1)
     sgtitle('Data Visualization')
@@ -82,8 +84,19 @@ function [lambda_top5, k_] = skeleton_hw5_2()
     test_img = faces(test_img_idx,:);    
     % Compute eigenface coefficients
     %%%% TODO
-    X_pca = (mean_face'.*ones(10304,400)) + W_pca*Y;
-    K = [0,1,2,k_,400,d];
+    for i = 1:rank(faces)
+    y_pca43(i) = U(:,i)'*(test_img'-mean_face');
+    end
+    K = [0,1,2,k_,400];
+
+    xhat = zeros(8,112*92);
+    for i = 2:length(K)-1
+        for j = 1:K(i)
+            xhat(i-1,:) = xhat(i-1,:) + (y_pca43(j)*U(:,j))';
+        end
+    xhat(i-1,:) = xhat(i-1,:) + mean_face;
+    end
+    
     % add eigen faces weighted by eigen face coefficients to the mean face
     % for each K value
     % 0 corresponds to adding nothing to the mean face
@@ -94,12 +107,17 @@ function [lambda_top5, k_] = skeleton_hw5_2()
     
     figure(3)
     sgtitle('Approximating original image by adding eigen faces')
-    subplot(1,length(K),1)
-    imshow(uint8(reshape(test_img,[112,92])));
-    for i = 2:length(K)
-       subplot(1,length(K),i)
-       imshow(uint8(reshape(mean(faces),[112,92])));
+    subplot(3,3,1)
+    imshow(uint8(reshape(mean_face,[112,92])));
+    title('Mean Image');
+    for i = 1:7
+    subplot(3,3,i+1)
+    imshow(uint8(reshape(xhat(i,:),[112,92])));
+    title(['K = ' num2str(K(i+1))])
     end
+    subplot(3,3,9)
+    imshow(uint8(reshape(test_img,[112,92])));
+    title('Original Image');
 %% Q5.2 d) Principal components capture different image characteristics
 %% Loading and pre-processing MNIST Data-set
     % Data Prameters
@@ -117,26 +135,30 @@ function [lambda_top5, k_] = skeleton_hw5_2()
     %% Compute the mean face and the covariance matrix
     % compute X_tilde
     %%%%% TODO
-    mean_image
+    mean_image = mean(X,1);
+    X_tilde = X - (mean_image.*ones(658,256));
     % Compute covariance using X_tilde
     %%%%% TODO
-    
+    Sx = cov(X_tilde);
     %% Compute the eigenvalue decomposition
     %%%%% TODO
-    
+    [U, Lambda] = eig(Sx,'vector');
     %% Sort the eigenvalues and their corresponding eigenvectors in the order of decreasing eigenvalues.
     %%%%% TODO
-    
+    [Lambda,idx] = sort(Lambda,'descend');
+    U = U(:,idx);
     %% Compute principal components
     %%%%% TODO
-    
+    W_pca = U;
     %% Computing the first 2 pricipal components
     %%%%% TODO
-
+    y_pca1 = X_tilde * U(:,1);
+    y_pca2 = X_tilde * U(:,2);
     % finding percentile points
     percentile_vals = [5, 25, 50, 75, 95];
     %%%%% TODO (Hint: Use the provided fucntion - percentile_points())
-    
+    values1 = percentile_values(y_pca1,percentile_vals);
+    values2 = percentile_values(y_pca2,percentile_vals);
     % Finding the cartesian product of percentile points to find grid corners
     %%%%% TODO
 
@@ -153,11 +175,11 @@ function [lambda_top5, k_] = skeleton_hw5_2()
     % Visualize the 100th image
     subplot(1,2,1)
     %%%%% TODO
-    
+    imshow(reshape(mnist(120,2:end),[16,16]));
     % Mean face image
     subplot(1,2,2)
     %%%%% TODO
-
+    imshow(reshape(mean_image,[16,16]));
     
     %% Image projections onto principal components and their corresponding features
     
@@ -170,7 +192,7 @@ function [lambda_top5, k_] = skeleton_hw5_2()
     % percentile grid corners
     
     %%%%% TODO (hint: Use xticks and yticks)
-
+    scatter(y_pca1,y_pca2)
     xlabel('Principal component 1')
     ylabel('Principal component 2')
     title('Image points closest to percentile grid corners')
