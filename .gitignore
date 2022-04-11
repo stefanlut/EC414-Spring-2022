@@ -1,1 +1,4 @@
-slutschg_hw5.zip
+*.zip
+*.png
+*.fig
+/att-database-of-faces
