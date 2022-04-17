@@ -56,27 +56,28 @@ for i = t
    v = [theta(1:d); 0] - (length(X_train_ext)*C*yj*xj * (yj*theta'*xj < 1));
    st = 0.5/i;
    theta = theta - st*v;
-   f_0 = 0.5*vecnorm(theta(1:d));
-   g_pair1 = f_0;
-   for m = 1:n
-       g_pair1 = g_pair1 + C*max(0,1-Y_train_pair1(m)*theta'*X_train_ext(:,m));
-       
-       if sign(theta'*X_train_ext(:,m)) == -1
-           y_pred_train1(m) = 1;
-       else
-           y_pred_train1(m) = 2;
-       end
-   end
-   for k = 1:45
-       if sign(theta'*X_test_ext(:,k)) == -1
-           y_pred_test1(k) = 1;
-       else
-           y_pred_test1(k) = 2;
-       end
-   end
-   train_confusionmat = confusionmat(Y_train_pair1,y_pred_train1);
-   test_confusionmat = confusionmat(sort([Y_label_test(1:15); Y_label_test(16:30); mod(Y_label_test(31:38),2); Y_label_test(39:end)*(2/3)]),y_pred_test1);
+   
    if(~mod(i,1000))
+       f_0 = 0.5*vecnorm(theta(1:d));
+       g_pair1 = f_0;
+       for m = 1:n
+           g_pair1 = g_pair1 + C*max(0,1-Y_train_pair1(m)*theta'*X_train_ext(:,m));
+       
+           if sign(theta'*X_train_ext(:,m)) == -1
+                y_pred_train1(m) = 1;
+           else
+                y_pred_train1(m) = 2;
+           end
+       end
+       for k = 1:45
+           if sign(theta'*X_test_ext(:,k)) == -1
+               y_pred_test1(k) = 1;
+           else
+               y_pred_test1(k) = 2;
+           end
+       end
+       train_confusionmat = confusionmat(Y_train_pair1,y_pred_train1);
+       test_confusionmat = confusionmat(sort([Y_label_test(1:15); Y_label_test(16:30); mod(Y_label_test(31:38),2); Y_label_test(39:end)*(2/3)]),y_pred_test1);
        plot_g_pair1(i/1000) = g_pair1/n;
        plot_ccr_trainpair1(i/1000) = trace(train_confusionmat)/n;
        plot_ccr_testpair1(i/1000) = trace(test_confusionmat)/45;
@@ -85,6 +86,7 @@ end
 plot(t_plot,plot_g_pair1,'LineWidth',2);
 title("Class 1 & Class 2");
 ylabel('$$\frac{1}{n}g(\bf{\theta})$$','Interpreter','latex')
+xlabel('$$t'' = \frac{t}{1000}$$','Interpreter','latex');
 %% Algorithm - 2nd classifier
 % Pair 2
 theta = zeros(d+1,1);
@@ -96,26 +98,27 @@ for i = t
    v = [theta(1:d); 0] - length(X_train_ext)*C*yj*xj * (yj*theta'*xj < 1);
    st = 0.5/i;
    theta = theta - st*v;
-   f_0 = 0.5*vecnorm(theta(1:d));
-   g_pair2 = f_0;
-   for j = 1:n
-       g_pair2 = g_pair2 + C*max(0,1-Y_train_pair2(j)*theta'*X_train_ext(:,j));
-       if sign(theta'*X_train_ext(:,j)) == -1
-           y_pred_train2(j) = 1;
-       else
-           y_pred_train2(j) = 3;
-       end
-   end
-   for k = 1:45
-       if sign(theta'*X_test_ext(:,k)) == -1
-           y_pred_test2(k) = 1;
-       else
-           y_pred_test2(k) = 3;
-       end
-   end
-   train_confusionmat = confusionmat(Y_train_pair2,y_pred_train2);
-   test_confusionmat = confusionmat(sort([Y_label_test(1:15);Y_label_test(16:23)/2; Y_label_test(24:30)*(3/2);Y_label_test(31:end)]),y_pred_test2);
+   
    if(~mod(i,1000))
+       f_0 = 0.5*vecnorm(theta(1:d));
+       g_pair2 = f_0;
+       for j = 1:n
+           g_pair2 = g_pair2 + C*max(0,1-Y_train_pair2(j)*theta'*X_train_ext(:,j));
+           if sign(theta'*X_train_ext(:,j)) == -1
+               y_pred_train2(j) = 1;
+           else
+               y_pred_train2(j) = 3;
+           end
+       end
+       for k = 1:45
+           if sign(theta'*X_test_ext(:,k)) == -1
+               y_pred_test2(k) = 1;
+           else
+               y_pred_test2(k) = 3;
+           end
+       end
+       train_confusionmat = confusionmat(Y_train_pair2,y_pred_train2);
+       test_confusionmat = confusionmat(sort([Y_label_test(1:15);Y_label_test(16:23)/2; Y_label_test(24:30)*(3/2);Y_label_test(31:end)]),y_pred_test2);
        plot_g_pair2(i/1000) = g_pair2/n;
        plot_ccr_trainpair2(i/1000) = trace(train_confusionmat)/n;
        plot_ccr_testpair2(i/1000) = trace(test_confusionmat)/45;
@@ -124,6 +127,7 @@ end
 plot(t_plot,plot_g_pair2,'LineWidth',2);
 title("Class 1 & Class 3");
 ylabel('$$\frac{1}{n}g(\bf{\theta})$$','Interpreter','latex')
+xlabel('$$t'' = \frac{t}{1000}$$','Interpreter','latex');
 %% Algorithm - 3rd classifier
 % Pair 3
 theta = zeros(d+1,1);
@@ -135,26 +139,27 @@ for i = t
    v = [theta(1:d); 0] - length(X_train_ext)*C*yj*xj * (yj*theta'*xj < 1);
    st = 0.5/i;
    theta = theta - st*v;
-   f_0 = 0.5*vecnorm(theta(1:d));
-   g_pair3 = f_0;
-   for j = 1:n
-       g_pair3 = g_pair3 + C*max(0,1-Y_train_pair3(j)*theta'*X_train_ext(:,j));
-       if sign(theta'*X_train_ext(:,j)) == -1
-           y_pred_train3(j) = 2;
-       else
-           y_pred_train3(j) = 3;
-       end
-   end
-   for k = 1:45
-       if sign(theta'*X_test_ext(:,k)) == -1
-           y_pred_test3(k) = 2;
-       else
-           y_pred_test3(k) = 3;
-       end
-   end
-   train_confusionmat = confusionmat(Y_train_pair3,y_pred_train3);
-   test_confusionmat = confusionmat(sort([Y_label_test(1:7)*2; Y_label_test(8:15)*3; Y_label_test(16:30);Y_label_test(31:end)]),y_pred_test3);
+   
    if(~mod(i,1000))
+       f_0 = 0.5*vecnorm(theta(1:d));
+       g_pair3 = f_0;
+       for j = 1:n
+           g_pair3 = g_pair3 + C*max(0,1-Y_train_pair3(j)*theta'*X_train_ext(:,j));
+           if sign(theta'*X_train_ext(:,j)) == -1
+               y_pred_train3(j) = 2;
+           else
+               y_pred_train3(j) = 3;
+           end
+       end
+       for k = 1:45
+           if sign(theta'*X_test_ext(:,k)) == -1
+               y_pred_test3(k) = 2;
+           else
+               y_pred_test3(k) = 3;
+           end
+       end
+       train_confusionmat = confusionmat(Y_train_pair3,y_pred_train3);
+       test_confusionmat = confusionmat(sort([Y_label_test(1:7)*2; Y_label_test(8:15)*3; Y_label_test(16:30);Y_label_test(31:end)]),y_pred_test3);
        plot_g_pair3(i/1000) = g_pair3/n;
        plot_ccr_trainpair3(i/1000) = trace(train_confusionmat)/n;
        plot_ccr_testpair3(i/1000) = trace(test_confusionmat)/45;
@@ -163,6 +168,7 @@ end
 plot(t_plot,plot_g_pair3,'LineWidth',2);
 title("Class 2 & Class 3");
 ylabel('$$\frac{1}{n}g(\bf{\theta})$$','Interpreter','latex')
+xlabel('$$t'' = \frac{t}{1000}$$','Interpreter','latex');
 %% Algorithm - CCR
 theta = zeros(d+1,1);
 figure(2);
