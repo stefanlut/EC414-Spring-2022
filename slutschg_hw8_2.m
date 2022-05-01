@@ -53,6 +53,7 @@ plot(t_plot,ccr_plot,'LineWidth',2);
 title("Correct Classification Rate",'FontSize',20);
 xlabel('t'' = 10t','FontSize',20);
 figure;
-gscatter(x(1,:),x(2,:),y);
+gscatter(x(1,:),x(2,:),y); hold on;
 xlabel("X1",'FontSize',20);
 ylabel("X2",'FontSize',20);
+%contour(K_rbf)
